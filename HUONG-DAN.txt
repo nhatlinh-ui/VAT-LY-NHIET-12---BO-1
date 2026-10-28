@@ -1,0 +1,52 @@
+THI NHANH VẬT LÍ NHIỆT – BỘ 1 · TỔNG HỢP – HƯỚNG DẪN NHANH
+
+Thư mục gồm:
+  index.html              Trang học sinh (gửi link này cho học sinh)
+  giaovien-k7q2.html      Trang giáo viên (KHÔNG gửi cho học sinh: có đáp án)
+  shared.css              Giao diện dùng chung
+  music.js                Nhạc nền hồi hộp cho màn hình giáo viên
+  relay.js                Kết nối qua máy chủ trung gian (để học sinh dùng 4G vẫn vào được)
+
+1) Đưa lên mạng (làm 1 lần, miễn phí)
+   - Vào https://app.netlify.com/drop , đăng nhập (có thể dùng tài khoản Google).
+   - Kéo cả thư mục này thả vào trang. Netlify cho một địa chỉ dạng https://ten-gi-do.netlify.app
+   - Có thể đổi tên địa chỉ trong Site settings cho dễ nhớ, ví dụ vatli12-pbc.netlify.app
+
+2) Trên lớp
+   - Máy chiếu mở: https://<dia-chi>/giaovien-k7q2.html
+   - Chọn số câu, thời gian, bấm "Tạo phòng mới". Màn hình hiện mã PIN và mã QR.
+   - Học sinh quét QR (hoặc mở https://<dia-chi>/), nhập PIN và họ tên.
+   - Bấm "Bắt đầu". Hết mỗi câu bấm "Xem bảng xếp hạng", rồi "Câu tiếp theo".
+   - Cuối buổi bấm "Tải bảng kết quả" để lấy file mở bằng Excel.
+
+Lưu ý
+   - Giữ trang giáo viên mở suốt buổi thi (không tắt máy, không đóng tab).
+   - Cần Internet trên máy giáo viên và điện thoại học sinh (Wi-Fi hoặc 4G).
+   - Nên dùng Chrome/Edge trên máy giáo viên.
+
+Nhạc
+   - Máy chiếu tự phát nhạc: sảnh chờ nhẹ nhàng; khi có câu hỏi là nhạc hồi hộp
+     (nhịp tim, trống dồn), càng gần hết giờ càng nhanh; 5 giây cuối có tiếng tích tắc;
+     công bố đáp án có hồi trống; bảng xếp hạng và kết quả cuối có nhạc chiến thắng.
+   - Trên thanh tiêu đề: bật/tắt nhạc, chỉnh âm lượng, hoặc bấm "Nhạc riêng…" để chọn
+     file mp3 của thầy/cô cho phần câu hỏi (nhạc riêng tự tăng nhịp khi sắp hết giờ).
+   - Trình duyệt chỉ cho phát âm thanh sau cú nhấp chuột đầu tiên: bấm vào trang một lần
+     trước khi bắt đầu. Nhớ nối loa với máy chiếu.
+   - Điện thoại học sinh chỉ có tiếng "ting" ngắn (câu mới, đúng, sai), không phát nhạc nền
+     để lớp không bị ồn; các em có thể tắt bằng nút "Âm thanh".
+
+Khi học sinh không vào được phòng
+   - Học sinh KHÔNG cần cài phần mềm hay ứng dụng nào: chỉ cần trình duyệt
+     Chrome (Android) hoặc Safari (iPhone) và Wi-Fi/4G.
+   - Nếu học sinh bấm link trong Zalo/Facebook/Messenger: bấm nút ⋯ ở góc trên,
+     chọn "Mở bằng trình duyệt" (hoặc chép link dán vào Chrome/Safari).
+   - Trang thi có 2 kiểu kết nối chạy song song: qua máy chủ trung gian (4 máy chủ
+     dự phòng, chạy được trên 4G) và kết nối trực tiếp. Góc trên màn hình giáo viên
+     hiện "Phòng đang mở · n/5 kênh": chỉ cần n từ 1 trở lên là học sinh vào được.
+   - Học sinh nhập đúng 6 số PIN đang hiện trên máy chiếu, đúng bộ thầy/cô đang mở.
+   - Wi-Fi của trường chặn: cho học sinh tắt Wi-Fi, dùng 4G.
+   - Vẫn lỗi: tắt VPN, chế độ tiết kiệm dữ liệu, ứng dụng chặn quảng cáo
+     (DNS riêng), rồi tải lại trang. Máy quá cũ (Android dưới 7, iOS dưới 14)
+     có thể không chạy được.
+   - Học sinh lỡ thoát ra: mở lại link, nhập lại PIN và đúng họ tên cũ là điểm vẫn giữ.
+

@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Giáo viên · Thi nhanh Vật lí nhiệt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <header class="bar">
+    <div class="brand"><h1>Thi nhanh Vật lí nhiệt</h1><span>Màn hình giáo viên · Bộ 1 · Tổng hợp</span></div>
+    <div class="row"><span class="pill off" id="net">Đang mở phòng…</span><span class="pill">Đang kết nối: <b class="num" id="online">0</b></span></div>
+  </header>
+  <main id="app"><div class="card"><h2>Đang tải…</h2></div></main>
+</div>
+
+<script src="music.js"></script>
+<script src="relay.js"></script>
+<script>
+/* ===== Ngân hàng câu hỏi (chỉ có trong trang giáo viên). a[0] là đáp án đúng; khi chơi thứ tự được xáo. ===== */
+const BANK = [{"lv": 1, "q": "Sự nóng chảy là quá trình chuyển thể từ", "a": ["thể rắn sang thể lỏng.", "thể lỏng sang thể rắn.", "thể lỏng sang thể khí.", "thể khí sang thể lỏng."], "e": "Nóng chảy: rắn → lỏng. Ngược lại (lỏng → rắn) là đông đặc."}, {"lv": 1, "q": "Trong hệ SI, đơn vị của nhiệt dung riêng là", "a": ["J/(kg.K)", "J/kg", "J/K", "kg/J"], "e": "c = Q/(mΔT) nên đơn vị là J/(kg.K). J/kg là đơn vị của nhiệt nóng chảy riêng và nhiệt hoá hơi riêng."}, {"lv": 1, "q": "Khi đúc một vật bằng đồng, quá trình đồng chuyển từ thể lỏng thành thể rắn là quá trình", "a": ["đông đặc.", "nóng chảy.", "ngưng tụ.", "hoá hơi."], "e": "Lỏng → rắn là đông đặc."}, {"lv": 1, "q": "Hệ thức liên hệ giữa nhiệt độ thang Kelvin và thang Celsius là", "a": ["T(K) = t(°C) + 273", "T(K) = t(°C) − 273", "T(K) = t(°C) + 32", "T(K) = 1,8.t(°C) + 32"], "e": "T(K) = t(°C) + 273. Công thức có 1,8 và 32 là của thang Fahrenheit."}, {"lv": 1, "q": "Quá trình chuyển từ thể lỏng sang thể khí xảy ra ở bề mặt chất lỏng được gọi là", "a": ["sự bay hơi.", "sự sôi.", "sự ngưng tụ.", "sự nóng chảy."], "e": "Bay hơi xảy ra ở mặt thoáng, ở mọi nhiệt độ. Sôi xảy ra cả trong lòng và trên bề mặt chất lỏng."}, {"lv": 1, "q": "Trong hệ SI, đơn vị của nhiệt nóng chảy riêng là", "a": ["J/kg", "J/(kg.K)", "J/K", "J/s"], "e": "λ = Q/m nên đơn vị là J/kg."}, {"lv": 2, "q": "Nội năng của một vật là", "a": ["tổng động năng và thế năng tương tác của các phân tử cấu tạo nên vật.", "tổng động năng và thế năng của vật.", "nhiệt lượng mà vật nhận được.", "tích động năng và thế năng của các phân tử cấu tạo nên vật."], "e": "Nội năng là tổng động năng chuyển động nhiệt và thế năng tương tác của các phân tử. Không nhầm với cơ năng của cả vật."}, {"lv": 2, "q": "Theo mô hình động học phân tử, ở thể khí các phân tử", "a": ["chuyển động hỗn loạn.", "dao động quanh vị trí cân bằng cố định.", "sắp xếp có trật tự.", "dao động quanh vị trí cân bằng không cố định."], "e": "Phân tử khí ở xa nhau, lực tương tác yếu nên chuyển động hỗn loạn về mọi phía."}, {"lv": 2, "q": "Sự truyền năng lượng nhiệt giữa hai vật đặt tiếp xúc với nhau chỉ xảy ra khi chúng khác nhau về", "a": ["nhiệt độ.", "khối lượng.", "thể tích.", "thế năng."], "e": "Nhiệt chỉ tự truyền khi hai vật có nhiệt độ khác nhau, từ vật nóng hơn sang vật lạnh hơn."}, {"lv": 2, "q": "Một khối khí có đặc điểm nào sau đây?", "a": ["Không có thể tích và hình dạng xác định.", "Có thể tích và hình dạng xác định.", "Có thể tích xác định nhưng không có hình dạng xác định.", "Có hình dạng xác định nhưng không có thể tích xác định."], "e": "Chất khí chiếm toàn bộ bình chứa, dễ nén nên không có thể tích và hình dạng riêng."}, {"lv": 2, "q": "Định luật I của nhiệt động lực học là sự vận dụng định luật nào sau đây?", "a": ["Định luật bảo toàn và chuyển hoá năng lượng.", "Định luật bảo toàn động lượng.", "Định luật bảo toàn cơ năng.", "Các định luật Newton."], "e": "ΔU = A + Q là định luật bảo toàn năng lượng áp dụng cho các quá trình nhiệt."}, {"lv": 2, "q": "Đơn vị của nhiệt hoá hơi riêng là", "a": ["J/kg", "J.kg", "kg/J", "J"], "e": "L = Q/m nên đơn vị là J/kg. Còn nhiệt hoá hơi Q = Lm có đơn vị J."}, {"lv": 3, "q": "Theo thang Celsius, khoảng từ nhiệt độ đông đặc đến nhiệt độ sôi của nước tinh khiết (áp suất 1 atm) được chia thành", "a": ["100 phần bằng nhau.", "10 phần bằng nhau.", "273 phần bằng nhau.", "180 phần bằng nhau."], "e": "0 °C đến 100 °C chia 100 phần, mỗi phần 1 °C. 180 phần là của thang Fahrenheit."}, {"lv": 3, "q": "Nhiệt kế thuỷ ngân hoạt động dựa trên hiện tượng", "a": ["dãn nở vì nhiệt của chất lỏng.", "dãn nở vì nhiệt của chất rắn.", "dãn nở vì nhiệt của chất khí.", "bức xạ hồng ngoại của vật."], "e": "Thuỷ ngân là chất lỏng, nở ra khi nóng lên làm cột thuỷ ngân dâng cao."}, {"lv": 3, "q": "Sự tạo thành các đám mây trên bầu trời là kết quả của hiện tượng", "a": ["ngưng tụ.", "bay hơi.", "đông đặc.", "nóng chảy."], "e": "Hơi nước bốc lên cao, gặp lạnh ngưng tụ thành các giọt nước nhỏ tạo thành mây."}, {"lv": 3, "q": "Nhiệt lượng cần cung cấp để làm nóng chảy hoàn toàn khối chất rắn khối lượng m ở nhiệt độ nóng chảy là", "a": ["Q = λm", "Q = λ/m", "Q = m/λ", "Q = mcΔt"], "e": "Q = λm, với λ là nhiệt nóng chảy riêng. Q = mcΔt dùng khi vật thay đổi nhiệt độ, không chuyển thể."}, {"lv": 3, "q": "Cách làm thay đổi nội năng bằng hình thức thực hiện công là", "a": ["cọ xát miếng kim loại trên mặt bàn.", "bỏ miếng kim loại vào nước nóng.", "hơ miếng kim loại trên ngọn lửa đèn cồn.", "bỏ miếng kim loại vào nước đá."], "e": "Cọ xát: công của lực ma sát chuyển hoá thành nội năng. Ba cách còn lại là truyền nhiệt."}, {"lv": 3, "q": "Những quá trình chuyển thể nào sau đây đều thu nhiệt lượng?", "a": ["Nóng chảy và sôi.", "Nóng chảy và ngưng tụ.", "Đông đặc và ngưng tụ.", "Đông đặc và sôi."], "e": "Nóng chảy, bay hơi, sôi thu nhiệt. Đông đặc, ngưng tụ toả nhiệt."}, {"lv": 4, "q": "Nhiệt độ sôi của nitrogen lỏng là −195,8 °C. Giá trị này trong thang Kelvin xấp xỉ bằng", "a": ["77 K", "469 K", "−77 K", "196 K"], "e": "T = −195,8 + 273 ≈ 77 K. Nhiệt độ Kelvin không bao giờ âm."}, {"lv": 4, "q": "Nhiệt độ một ngày hè ở Hà Nội là 35 °C. Theo thang Kelvin, nhiệt độ đó là", "a": ["308 K", "238 K", "95 K", "31 K"], "e": "T = 35 + 273 = 308 K."}, {"lv": 4, "q": "Khi hai vật tiếp xúc nhau ở trạng thái cân bằng nhiệt thì", "a": ["nhiệt độ của hai vật bằng nhau.", "nội năng của hai vật bằng nhau.", "nhiệt lượng hai vật chứa bằng nhau.", "khối lượng của hai vật bằng nhau."], "e": "Cân bằng nhiệt nghĩa là cùng nhiệt độ. Nội năng hai vật có thể rất khác nhau."}, {"lv": 4, "q": "Nhiệt dung riêng của một chất là nhiệt lượng cần truyền cho", "a": ["1 kg chất đó để nhiệt độ tăng thêm 1 K.", "1 kg chất đó để nhiệt độ tăng thêm 100 K.", "1 m³ chất đó để nhiệt độ tăng thêm 1 K.", "1 lít chất đó để nhiệt độ tăng thêm 1 K."], "e": "Định nghĩa: nhiệt lượng cần để 1 kg chất tăng thêm 1 K (hay 1 °C)."}, {"lv": 4, "q": "Sương muối hình thành vào đêm đông giá rét (hơi nước chuyển trực tiếp thành tinh thể băng) là quá trình", "a": ["ngưng kết, toả nhiệt.", "thăng hoa, toả nhiệt.", "ngưng tụ, thu nhiệt.", "nóng chảy, thu nhiệt."], "e": "Khí → rắn là ngưng kết, quá trình này toả nhiệt. Thăng hoa là chiều ngược lại (rắn → khí)."}, {"lv": 4, "q": "Công thức chuyển đổi nhiệt độ từ thang Celsius sang thang Fahrenheit là", "a": ["t(°F) = 32 + 1,8.t(°C)", "t(°F) = 32.t(°C)", "t(°F) = 273 + t(°C)", "t(°F) = 1,8 + 32.t(°C)"], "e": "t(°F) = 1,8.t(°C) + 32. Ví dụ 100 °C = 212 °F."}, {"lv": 5, "q": "Hệ thức ΔU = A + Q với Q > 0 và A < 0 mô tả quá trình", "a": ["hệ nhận nhiệt và sinh công.", "hệ truyền nhiệt và sinh công.", "hệ truyền nhiệt và nhận công.", "hệ nhận nhiệt và nhận công."], "e": "Q > 0: hệ nhận nhiệt. A < 0: hệ thực hiện (sinh) công."}, {"lv": 5, "q": "Phát biểu nào sau đây về nhiệt lượng là KHÔNG đúng?", "a": ["Một vật lúc nào cũng có nội năng nên lúc nào cũng có nhiệt lượng.", "Nhiệt lượng là số đo độ biến thiên nội năng trong quá trình truyền nhiệt.", "Nhiệt lượng và nội năng có cùng đơn vị là jun.", "Nhiệt lượng không phải là nội năng."], "e": "Nhiệt lượng chỉ xuất hiện trong quá trình truyền nhiệt. Vật không \"chứa\" hay \"có\" nhiệt lượng."}, {"lv": 5, "q": "Phát biểu nào sau đây về truyền nhiệt và thực hiện công là KHÔNG đúng?", "a": ["Trong truyền nhiệt có sự chuyển hoá từ cơ năng sang nội năng.", "Thực hiện công là quá trình có thể làm thay đổi nội năng của vật.", "Trong thực hiện công có sự chuyển hoá giữa cơ năng và nội năng.", "Trong truyền nhiệt có sự truyền động năng từ phân tử này sang phân tử khác."], "e": "Truyền nhiệt chỉ truyền nội năng, không có chuyển hoá cơ năng ↔ nội năng. Chuyển hoá chỉ có khi thực hiện công."}, {"lv": 5, "q": "Một khối chất mà các phân tử tạo nên nó dao động quanh vị trí cân bằng thì khối chất đó", "a": ["ở thể rắn hoặc thể lỏng.", "chỉ ở thể rắn.", "ở thể rắn hoặc thể khí.", "ở thể lỏng hoặc thể khí."], "e": "Rắn: dao động quanh VTCB cố định. Lỏng: dao động quanh VTCB không cố định. Khí thì không có VTCB."}, {"lv": 5, "q": "Khi chất lỏng bay hơi, nhiệt độ của phần chất lỏng còn lại", "a": ["giảm.", "tăng.", "không đổi.", "tăng rồi giảm."], "e": "Các phân tử có động năng lớn thoát ra, động năng trung bình của phần còn lại giảm nên chất lỏng lạnh đi."}, {"lv": 5, "q": "Khi chất rắn kết tinh đang nóng chảy, đại lượng nào sau đây KHÔNG thay đổi?", "a": ["Nhiệt độ của vật.", "Nội năng của vật.", "Thể tích của vật.", "Hình dạng của vật."], "e": "Nhiệt độ giữ nguyên ở nhiệt độ nóng chảy. Nội năng vẫn tăng vì vật thu nhiệt để phá vỡ mạng tinh thể."}, {"lv": 6, "q": "Nước đang sôi, dù tiếp tục được cung cấp nhiệt lượng nhưng nhiệt độ vẫn giữ 100 °C. Phát biểu nào đúng?", "a": ["Nhiệt lượng cung cấp dùng để phá vỡ liên kết giữa các phân tử nước.", "Đun với công suất lớn hơn sẽ làm nước sôi ở trên 100 °C.", "Nhiệt độ không đổi nên nội năng của nước trong ấm không đổi.", "Nhiệt lượng cung cấp làm tăng tốc độ trung bình của phân tử nước."], "e": "Khi sôi, nhiệt lượng làm tăng thế năng (phá vỡ liên kết), động năng trung bình không đổi. Nhiệt độ sôi chỉ phụ thuộc áp suất."}, {"lv": 6, "q": "Hai vật X và Y tiếp xúc nhau và nhiệt lượng tự truyền từ X sang Y. Phát biểu nào đúng?", "a": ["Nhiệt độ ban đầu của X cao hơn của Y.", "Nội năng của X luôn lớn hơn của Y.", "Vật X chứa nhiều nhiệt lượng hơn vật Y.", "Vật X chứa ít nhiệt lượng hơn vật Y."], "e": "Chiều truyền nhiệt chỉ do nhiệt độ quyết định. Vật không chứa nhiệt lượng."}, {"lv": 6, "q": "Truyền cùng một nhiệt lượng cho hai vật cùng khối lượng làm từ hai chất khác nhau (không chuyển thể). Phát biểu nào đúng?", "a": ["Vật làm từ chất có nhiệt dung riêng nhỏ hơn thì nóng lên nhiều hơn.", "Vật làm từ chất có nhiệt dung riêng nhỏ hơn thì nóng lên ít hơn.", "Hai vật có độ tăng nhiệt độ bằng nhau.", "Hai vật không thay đổi nhiệt độ."], "e": "Δt = Q/(mc): cùng Q, cùng m thì c càng nhỏ, Δt càng lớn."}, {"lv": 6, "q": "Kết luận nào sau đây KHÔNG đúng với thang nhiệt độ Kelvin?", "a": ["Nước đá đang tan ở áp suất 1 atm có nhiệt độ 0 K.", "Kí hiệu nhiệt độ là T, đơn vị là K.", "Ở 0 K các phân tử ngừng chuyển động nhiệt.", "Mỗi độ chia 1 K bằng 1 °C."], "e": "Nước đá đang tan ở 0 °C = 273 K, không phải 0 K."}, {"lv": 6, "q": "Bị bỏng bởi hơi nước ở 100 °C thường nặng hơn bị bỏng bởi nước sôi 100 °C cùng khối lượng vì", "a": ["hơi nước ngưng tụ trên da toả thêm nhiệt lượng Q = Lm.", "hơi nước ở 100 °C nóng hơn nước ở 100 °C.", "hơi nước có khối lượng riêng nhỏ hơn nước.", "hơi nước dẫn nhiệt tốt hơn nước."], "e": "Cùng 100 °C, nhưng hơi nước khi ngưng tụ toả thêm nhiệt hoá hơi Lm rất lớn rồi mới nguội như nước sôi."}, {"lv": 6, "q": "Nồi áp suất giúp thức ăn nhanh chín hơn nồi thường vì", "a": ["áp suất trên mặt nước lớn nên nước sôi ở nhiệt độ cao hơn 100 °C.", "áp suất lớn nên nước sôi ở nhiệt độ thấp hơn 100 °C.", "nước đang sôi trong nồi tiếp tục nóng lên khi tăng lửa.", "nắp nồi kín giúp nội năng của nước không đổi."], "e": "Áp suất tăng thì nhiệt độ sôi tăng. Ngược lại, trên núi cao áp suất thấp, nước sôi dưới 100 °C nên nấu lâu chín."}, {"lv": 7, "q": "Ba bình chứa cùng lượng nước để trong phòng: bình A cổ hẹp, bình B rộng và nông, bình C hình trụ thẳng. Sau một tuần, bình nào còn ít nước nhất và bình nào còn nhiều nước nhất?", "a": ["Ít nhất: bình B; nhiều nhất: bình A.", "Ít nhất: bình A; nhiều nhất: bình C.", "Ít nhất: bình C; nhiều nhất: bình B.", "Ít nhất: bình B; nhiều nhất: bình C."], "e": "Tốc độ bay hơi phụ thuộc diện tích mặt thoáng (miệng bình). B có mặt thoáng lớn nhất, A cổ hẹp có mặt thoáng nhỏ nhất."}, {"lv": 7, "q": "Hai vật rắn M và N làm từ hai chất khác nhau, khối lượng M lớn hơn N. Hai vật nhận nhiệt lượng bằng nhau, không chuyển thể và có độ tăng nhiệt độ bằng nhau. Phát biểu nào đúng?", "a": ["Nhiệt dung riêng của M nhỏ hơn của N.", "Nhiệt dung riêng của M lớn hơn của N.", "Nhiệt độ ban đầu của hai vật bằng nhau.", "Nhiệt độ ban đầu của M cao hơn của N."], "e": "Q = m_M.c_M.Δt = m_N.c_N.Δt nên m_M.c_M = m_N.c_N. Vì m_M > m_N nên c_M < c_N."}, {"lv": 7, "q": "Một khối khí lí tưởng bị nén nhanh trong xilanh cách nhiệt. Nội năng của khối khí", "a": ["tăng, vì khí nhận công.", "không đổi, vì xilanh cách nhiệt.", "giảm, vì khí nhận công.", "giảm, vì khí sinh công."], "e": "Cách nhiệt nên Q = 0. Khí bị nén nhận công A > 0, do đó ΔU = A > 0."}, {"lv": 7, "q": "Làm lạnh một lượng khí lí tưởng trong bình kín có thể tích không đổi. Nội năng của khí", "a": ["giảm, vì khí toả nhiệt.", "không đổi, vì thể tích không đổi.", "tăng, vì khí nhận công.", "giảm, vì khí sinh công."], "e": "Thể tích không đổi nên A = 0. Khí toả nhiệt (Q < 0) nên ΔU = Q < 0."}, {"lv": 7, "q": "Biết nhiệt dung riêng của sắt lớn hơn của đồng. Thả khối sắt nóng và khối đồng nóng (cùng khối lượng, cùng nhiệt độ ban đầu) vào hai cốc nước lạnh giống hệt nhau. Khi cân bằng nhiệt:", "a": ["nước ở cốc thả khối sắt nóng hơn.", "nước ở cốc thả khối đồng nóng hơn.", "nước ở hai cốc nóng như nhau.", "không so sánh được."], "e": "Sắt có c lớn hơn nên mỗi độ giảm toả nhiều nhiệt hơn, nước ở cốc thả sắt nhận nhiều nhiệt hơn."}, {"lv": 7, "q": "Buổi sáng mùa đông (10 °C), chạm tay vào ghế sắt thấy lạnh buốt hơn ghế gỗ để cùng ngoài sân. Giải thích đúng là:", "a": ["Sắt dẫn nhiệt tốt hơn gỗ nên lấy nhiệt từ tay nhanh hơn.", "Nhiệt độ của ghế sắt thấp hơn ghế gỗ.", "Sắt có nhiệt dung riêng nhỏ nên giữ được nhiều nhiệt.", "Ghế sắt luôn lạnh hơn môi trường xung quanh."], "e": "Hai ghế cùng nhiệt độ với môi trường. Cảm giác lạnh do sắt dẫn nhiệt tốt, lấy nhiệt từ tay nhanh."}, {"lv": 8, "q": "Thả viên đá ở 0 °C vào cốc nước ngọt ở 25 °C. Trong khi viên đá đang tan, nhiệt độ của viên đá", "a": ["giữ ở 0 °C cho đến khi tan hết.", "tăng dần đến 25 °C.", "giảm dần.", "tăng rồi giảm."], "e": "Chất rắn kết tinh nóng chảy ở nhiệt độ không đổi. Nhiệt nhận vào dùng để phá vỡ mạng tinh thể."}, {"lv": 8, "q": "Nhiệt nóng chảy riêng của đồng là 1,8.10⁵ J/kg. Câu nào đúng?", "a": ["Mỗi kg đồng cần thu 1,8.10⁵ J để nóng chảy hoàn toàn ở nhiệt độ nóng chảy.", "Khối đồng toả ra 1,8.10⁵ J khi nóng chảy hoàn toàn.", "Khối đồng cần thu 1,8.10⁵ J để hoá lỏng.", "Mỗi kg đồng toả ra 1,8.10⁵ J khi hoá lỏng hoàn toàn."], "e": "Cần đủ ba ý: mỗi 1 kg, THU nhiệt, ở nhiệt độ nóng chảy."}, {"lv": 8, "q": "Khi một chất đang ở nhiệt độ hoá hơi (đang sôi), ta có thể làm thí nghiệm để xác định", "a": ["nhiệt hoá hơi riêng của chất đó.", "cả nhiệt dung riêng và nhiệt hoá hơi riêng.", "nhiệt dung riêng của chất đó.", "không đại lượng nào."], "e": "Khi sôi nhiệt độ không đổi (Δt = 0) nên không đo được c. Chỉ đo được L = Q/Δm."}, {"lv": 8, "q": "Trong thí nghiệm đo nhiệt hoá hơi riêng của nước bằng công thức L = P.τ/Δm, đại lượng Δm là", "a": ["khối lượng nước đã hoá hơi trong thời gian τ.", "khối lượng nước ban đầu trong nhiệt lượng kế.", "khối lượng nước còn lại tại thời điểm τ.", "tổng khối lượng nước và nhiệt lượng kế."], "e": "Δm = số chỉ cân lúc đầu − số chỉ cân lúc sau = phần nước đã hoá hơi."}, {"lv": 8, "q": "Khi đo nhiệt hoá hơi riêng của nước, ta phải mở nắp bình trong suốt quá trình sôi. Nhận định nào SAI về mục đích việc này?", "a": ["Để giảm áp suất xuống thấp hơn áp suất khí quyển chuẩn.", "Để giữ nhiệt độ sôi của nước không đổi.", "Để tránh hơi nước ngưng tụ ở nắp bình.", "Để hơi nước thoát ra khỏi bình."], "e": "Mở nắp để áp suất trên mặt nước bằng áp suất khí quyển, không làm áp suất thấp hơn."}, {"lv": 8, "q": "Nước thường được dùng trong hệ thống làm mát động cơ ô tô vì", "a": ["nước có nhiệt dung riêng lớn, hấp thụ cùng nhiệt lượng thì nóng lên ít.", "nước có nhiệt dung riêng nhỏ nên hấp thụ nhiệt rất nhanh.", "nước có nhiệt dung riêng lớn nên hấp thụ ít nhiệt.", "nước có nhiệt dung riêng nhỏ nên lấy đi nhiều nhiệt."], "e": "c lớn nên Δt = Q/(mc) nhỏ, động cơ không bị quá nhiệt."}, {"lv": 9, "q": "Người ta thực hiện công 1000 J để nén khí trong xilanh, khí truyền ra môi trường nhiệt lượng 600 J. Độ biến thiên nội năng của khí là", "a": ["400 J", "−400 J", "1600 J", "−1600 J"], "e": "A = +1000 J (nhận công), Q = −600 J (toả nhiệt). ΔU = 1000 − 600 = 400 J."}, {"lv": 9, "q": "Nhiệt kế thuỷ ngân có khoảng cách giữa vạch 0 °C và vạch 100 °C là 20 cm. Khi mực thuỷ ngân thấp hơn vạch 100 °C là 5 cm thì nhiệt độ là", "a": ["75 °C", "25 °C", "50 °C", "80 °C"], "e": "1 cm ứng với 5 °C. Mực cách vạch 0 °C là 15 cm nên t = 15.5 = 75 °C."}, {"lv": 9, "q": "Khối đồng khối lượng 2 kg nhận nhiệt lượng 7600 J thì nóng thêm 10 °C. Nhiệt dung riêng của đồng là", "a": ["380 J/(kg.K)", "130 J/(kg.K)", "3800 J/(kg.K)", "760 J/(kg.K)"], "e": "c = Q/(mΔt) = 7600/(2.10) = 380 J/(kg.K)."}, {"lv": 9, "q": "Biết nhiệt nóng chảy riêng của nước đá là 3,4.10⁵ J/kg. Nhiệt lượng cần để làm nóng chảy hoàn toàn 100 g nước đá ở 0 °C là", "a": ["3,4.10⁴ J", "3,4.10⁷ J", "3,4.10³ J", "3,4.10⁵ J"], "e": "Q = λm = 3,4.10⁵.0,1 = 3,4.10⁴ J. Nhớ đổi 100 g = 0,1 kg."}, {"lv": 9, "q": "Biết nhiệt hoá hơi riêng của nước là 2,3.10⁶ J/kg. Nhiệt lượng cần để hoá hơi hoàn toàn 600 g nước ở 100 °C là", "a": ["1,38.10⁶ J", "1,38.10⁹ J", "3,8.10³ J", "4,6.10⁶ J"], "e": "Q = Lm = 2,3.10⁶.0,6 = 1,38.10⁶ J."}, {"lv": 9, "q": "Cung cấp cho khối khí trong xilanh nhiệt lượng 500 J. Khí dãn nở thực hiện công 200 J và thất thoát ra môi trường 50 J. Độ biến thiên nội năng của khí là", "a": ["250 J", "350 J", "650 J", "750 J"], "e": "Q thực nhận = 500 − 50 = 450 J; A = −200 J. ΔU = 450 − 200 = 250 J."}, {"lv": 10, "q": "Nhiệt dung riêng của nước là 4200 J/(kg.K). Nhiệt lượng cần để đun nóng 25 lít nước từ 25 °C lên 60 °C là", "a": ["3 675 000 J", "1 837 500 J", "6 300 000 J", "2 625 000 J"], "e": "Q = mcΔt = 25.4200.35 = 3 675 000 J."}, {"lv": 10, "q": "Một lượng nước và một lượng rượu có thể tích bằng nhau (D nước = 1000 kg/m³, D rượu = 800 kg/m³; c nước = 4200, c rượu = 2500 J/(kg.K)). Để độ tăng nhiệt độ bằng nhau thì nhiệt lượng Q₁ (nước) và Q₂ (rượu) liên hệ:", "a": ["Q₁ = 2,1Q₂", "Q₁ = 1,68Q₂", "Q₁ = 1,25Q₂", "Q₁ = Q₂"], "e": "Q₁/Q₂ = (1000.4200)/(800.2500) = 2,1. Thể tích bằng nhau nhưng khối lượng khác nhau."}, {"lv": 10, "q": "Viên đạn chì 50 g bay với tốc độ 360 km/h, xuyên qua tấm thép thì còn 72 km/h. Độ biến thiên nội năng của đạn và thép là", "a": ["240 J", "250 J", "160 J", "2400 J"], "e": "v₀ = 100 m/s, v = 20 m/s. ΔU = ½.0,05.(100² − 20²) = 240 J."}, {"lv": 10, "q": "Quả bóng 0,1 kg rơi từ độ cao 10 m xuống sân và nảy lên 7 m. Lấy g = 9,8 m/s². Độ biến thiên nội năng của hệ bóng, sân và không khí là", "a": ["2,94 J", "9,80 J", "6,86 J", "16,66 J"], "e": "ΔU = mg(h₁ − h₂) = 0,1.9,8.3 = 2,94 J."}, {"lv": 10, "q": "Hai vật A và B có m_A/m_B = 2/3 và c_A/c_B = 3. Cung cấp Q_B = 2Q_A. Tỉ số độ tăng nhiệt độ Δt_B/Δt_A là", "a": ["4", "1/4", "1", "2"], "e": "Δt_B/Δt_A = (Q_B/Q_A).(m_A.c_A)/(m_B.c_B) = 2.(2/3).3 = 4."}, {"lv": 10, "q": "Miếng băng 720 g ở −10 °C nhận tổng nhiệt lượng 210 kJ (c băng = 2125 J/(kg.K), λ = 330 kJ/kg). Trạng thái cuối gồm", "a": ["590 g nước và 130 g nước đá ở 0 °C.", "130 g nước và 590 g nước đá ở 0 °C.", "636 g nước và 84 g nước đá ở 0 °C.", "720 g nước ở 0 °C."], "e": "Làm nóng đến 0 °C: 0,72.2125.10 = 15 300 J. Còn 194 700 J làm tan 194 700/330 000 = 0,59 kg."}, {"lv": 11, "q": "Thả 50 g nước đá ở 0 °C vào bình cách nhiệt chứa 200 g nước ở 30 °C (λ = 3,34.10⁵ J/kg; c = 4180 J/(kg.K)). Nhiệt độ cân bằng xấp xỉ", "a": ["8,0 °C", "24,0 °C", "0 °C, đá còn dư", "15,0 °C"], "e": "Nước toả tối đa 25 080 J > 16 700 J cần để đá tan hết. 16 700 + 0,05.4180.t = 0,2.4180.(30 − t) → t ≈ 8,0 °C."}, {"lv": 11, "q": "Thả 50 g nước đá ở 0 °C vào bình chứa 200 g nước ở 15 °C (λ = 3,34.10⁵ J/kg; c = 4200 J/(kg.K)). Nhiệt độ cân bằng là", "a": ["0 °C, đá chỉ tan một phần.", "12,0 °C", "−3,9 °C", "3,9 °C"], "e": "Nước toả tối đa 0,2.4200.15 = 12 600 J < 16 700 J cần để đá tan hết. Đá chỉ tan một phần, hệ ở 0 °C."}, {"lv": 11, "q": "Dẫn 0,1 kg hơi nước ở 100 °C vào bình cách nhiệt chứa 1 kg nước ở 20 °C (L = 2,3.10⁶ J/kg; c = 4200 J/(kg.K)). Nhiệt độ cuối của hệ xấp xỉ", "a": ["77,1 °C", "74,8 °C", "27,3 °C", "100 °C"], "e": "0,1.2,3.10⁶ + 0,1.4200.(100 − t) = 1.4200.(t − 20) → t ≈ 77,1 °C. Đừng quên phần nước ngưng tụ còn nguội từ 100 °C xuống t."}, {"lv": 11, "q": "Khí trong xilanh bị nung nóng, nở ra làm thể tích tăng 10 lít ở áp suất không đổi 2.10⁵ Pa, nội năng tăng 560 J. Nhiệt lượng đã truyền cho khí là", "a": ["2560 J", "1440 J", "560 J", "2 000 560 J"], "e": "A' = pΔV = 2.10⁵.10.10⁻³ = 2000 J. Q = ΔU + A' = 560 + 2000 = 2560 J."}, {"lv": 11, "q": "Bếp điện 500 W, hiệu suất 80%, làm tan hoàn toàn một khối nước đá ở 0 °C trong 10 phút (λ = 3,34.10⁵ J/kg). Khối lượng nước đá xấp xỉ", "a": ["719 g", "898 g", "12 g", "575 g"], "e": "m = H.P.t/λ = 0,8.500.600/3,34.10⁵ ≈ 0,719 kg. Đổi 10 phút = 600 s."}, {"lv": 11, "q": "Ấm điện 1500 W, hiệu suất 90%, đang đun nước sôi ở 100 °C (L = 2,25.10⁶ J/kg). Thời gian để 50 g nước hoá hơi hết là", "a": ["83,3 s", "75,0 s", "67,5 s", "833 s"], "e": "0,9.1500.t = 0,05.2,25.10⁶ = 112 500 J → t ≈ 83,3 s."}, {"lv": 12, "q": "Cho 0,3 kg nước ở 40 °C vào bình cách nhiệt chứa 0,2 kg nước đá ở −10 °C (c đá = 2100, c nước = 4180 J/(kg.K); λ = 3,34.10⁵ J/kg). Khi cân bằng nhiệt, hệ", "a": ["ở 0 °C, còn khoảng 62 g nước đá.", "ở 0 °C, nước đá tan hết.", "ở khoảng 8,6 °C.", "ở 0 °C, còn khoảng 138 g nước đá."], "e": "Nước toả tối đa 50 160 J. Đá cần 4200 J để lên 0 °C, còn 45 960 J làm tan 137,6 g → còn 62,4 g đá."}, {"lv": 12, "q": "Xilanh thẳng đứng, pit-tông khối lượng 2 kg, tiết diện 0,01 m²; p₀ = 10⁵ Pa; g = 10 m/s². Khí nhận 180 J, đẩy pit-tông lên 5 cm ở áp suất không đổi, bỏ qua ma sát. Độ biến thiên nội năng của khí là", "a": ["129 J", "130 J", "179 J", "231 J"], "e": "p = p₀ + mg/S = 1,02.10⁵ Pa. |A| = pSΔh = 51 J. ΔU = 180 − 51 = 129 J."}, {"lv": 12, "q": "Đổ 350 g thiếc lỏng ở 232 °C (nhiệt độ nóng chảy) vào 330 g nước ở 7 °C trong nhiệt lượng kế có nhiệt dung 100 J/K. Cân bằng ở 32 °C, thiếc đông đặc hết (c nước = 4200, c thiếc rắn = 230 J/(kg.K)). Nhiệt nóng chảy riêng của thiếc xấp xỉ", "a": ["60 J/g", "106 J/g", "53 J/g", "15 J/g"], "e": "Thu: (0,33.4200 + 100).25 = 37 150 J. Toả: 0,35λ + 0,35.230.200 = 0,35λ + 16 100. λ ≈ 60 000 J/kg = 60 J/g."}, {"lv": 12, "q": "Khối nước đá ở 0 °C được đun: cần 120 kJ để tan hết và nóng tới 100 °C; sau đó nhận thêm 138 kJ ở 100 °C (λ = 3,3.10⁵ J/kg; c = 4200 J/(kg.K); L = 2,3.10⁶ J/kg). Khối lượng nước còn lại là", "a": ["100 g", "60 g", "160 g", "40 g"], "e": "m(λ + c.100) = 120 000 → m = 0,16 kg. Hoá hơi: 138 000/2,3.10⁶ = 0,06 kg. Còn 160 − 60 = 100 g."}, {"lv": 12, "q": "Ấm điện 1000 W, hiệu suất 80%, đang đun nước sôi đều (L = 2,26.10⁶ J/kg). Sau 8 phút, khối lượng nước đã hoá hơi xấp xỉ", "a": ["0,17 kg", "0,21 kg", "0,33 kg", "0,0028 kg"], "e": "m = H.P.t/L = 0,8.1000.480/2,26.10⁶ ≈ 0,17 kg."}, {"lv": 12, "q": "Pha 20 lít nước nóng 75 °C với nước lạnh 15 °C để được nước tắm 39 °C. Nhiệt lượng hao phí ra môi trường bằng 10% nhiệt lượng nước nóng toả ra. Tổng thể tích nước tắm thu được là", "a": ["47 lít", "50 lít", "27 lít", "53 lít"], "e": "0,9.20.(75 − 39) = m.(39 − 15) → m = 27 lít nước lạnh. Tổng: 20 + 27 = 47 lít."}];
+
+const PREFIX="pbc-vatli12-nhiet-";
+const TIER = lv => lv<=4?"Nhận biết":lv<=8?"Thông hiểu":"Vận dụng";
+const TIER_T = lv => lv<=4?20:lv<=8?30:60;
+const MIX = {10:[3,4,3],15:[4,6,5],20:[6,8,6],30:[9,12,9]};
+const KEYS=["A","B","C","D"];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const fmtSec=ms=>(ms/1000).toLocaleString("vi-VN",{maximumFractionDigits:1})+" s";
+const scoreFor=(t,T)=>Math.max(500,Math.round(1000*(1-0.5*Math.min(1,t/(T*1000)))));
+const app=$("#app");
+
+/* ---------- tải PeerJS ---------- */
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+async function loadPeer(){
+  if(window.Peer) return true;
+  for(const u of ["https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js","https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"]){
+    try{await loadScript(u);if(window.Peer)return true}catch(e){}
+  }
+  return false;
+}
+async function loadQR(){
+  if(window.qrcode) return true;
+  for(const u of ["https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js","https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"]){
+    try{await loadScript(u);if(window.qrcode)return true}catch(e){}
+  }
+  return false;
+}
+
+/* ---------- trạng thái ---------- */
+let H=null;          // {pin,qs:[{lv,text,opts,correct,e,T}],qStart}
+let live=null;       // trạng thái gửi cho học sinh
+let players={};      // pid -> {pid,nick,ans:{qi:{k,t,pts}}}
+let conns={};        // pid -> DataConnection
+let peer=null, tick=null, peerReady=false;
+let relays=[], RC={}, wasReady=false; // kênh qua máy chủ trung gian
+
+function save(){ls.set("tn-host",JSON.stringify({H,live,players}))}
+function restore(){try{const s=JSON.parse(ls.get("tn-host")||"null");if(s&&s.H&&s.live){H=s.H;live=s.live;players=s.players||{}}}catch(e){}}
+
+function rows(){
+  return Object.values(players).map(p=>{
+    const as=Object.values(p.ans);
+    return {pid:p.pid,nick:p.nick,ans:p.ans,score:as.reduce((s,a)=>s+a.pts,0),correct:as.filter(a=>a.pts>0).length,time:as.filter(a=>a.pts>0).reduce((s,a)=>s+a.t,0)};
+  }).sort((a,b)=>b.score-a.score||a.time-b.time||a.nick.localeCompare(b.nick,"vi"));
+}
+
+/* ---------- mạng ---------- */
+function openRoom(pin){
+  openRelays(pin);
+  if(peer){try{peer.destroy()}catch(e){}}
+  peerReady=false;updateNet();
+  if(!window.Peer) return;
+  peer=new Peer(PREFIX+pin,{debug:0});
+  peer.on("open",()=>{peerReady=true;updateNet()});
+  peer.on("connection",c=>wireConn(c));
+  peer.on("disconnected",()=>{peerReady=false;updateNet();setTimeout(()=>{try{peer.reconnect()}catch(e){}},1500)});
+  peer.on("error",e=>{
+    if(e.type==="unavailable-id"){peerReady=false;updateNet();setTimeout(()=>{if(H&&H.pin===pin)openRoom(pin)},5000)}
+    else if(e.type==="network"||e.type==="server-error"||e.type==="socket-error"||e.type==="socket-closed"){peerReady=false;updateNet();setTimeout(()=>{try{peer.reconnect()}catch(_){}},3000)}
+  });
+}
+/* kênh qua máy chủ trung gian: học sinh dùng 4G/Wi-Fi chặn P2P vẫn vào được */
+function roomReady(){return peerReady||relays.some(x=>x&&x.r&&x.r.ok)}
+function updateNet(){
+  const n=relays.filter(x=>x&&x.r&&x.r.ok).length+(peerReady?1:0),tot=(window.QuizRelay?QuizRelay.BROKERS.length:0)+(window.Peer?1:0);
+  if(n) setNet(`Phòng đang mở · ${n}/${tot} kênh`,true); else setNet(H?"Đang mở phòng…":"Chưa mở phòng",false);
+  const r=n>0; if(r!==wasReady){wasReady=r;if(live&&live.phase==="lobby")render()}
+}
+function closeRelays(){
+  relays.forEach(s=>{if(s){s.dead=true;if(s.r)s.r.close()}});relays=[];
+  Object.values(RC).forEach(c=>c.close());RC={};
+}
+function openRelays(pin){
+  closeRelays();
+  if(!window.QuizRelay) return;
+  const base=QuizRelay.topic(PREFIX,pin);
+  QuizRelay.BROKERS.forEach((u,i)=>{
+    const slot=relays[i]={r:null,dead:false};
+    const go=()=>{
+      if(slot.dead) return;
+      const r=new QuizRelay.Relay(u);slot.r=r;
+      r.onmsg=(t,o)=>onRelayMsg(i,r,base,o);
+      r.connect(9000).then(()=>{
+        if(slot.dead){r.close();return}
+        r.sub(base+"/up");updateNet();
+        r.onclose=()=>{Object.keys(RC).forEach(k=>{if(k.startsWith(i+"|"))RC[k].close()});updateNet();setTimeout(go,3000)};
+      }).catch(()=>{updateNet();setTimeout(go,8000)});
+    };
+    go();
+  });
+}
+function onRelayMsg(i,r,base,o){
+  if(!o||typeof o.from!=="string"||!o.m||typeof o.m!=="object") return;
+  const pid=o.from.slice(0,40),key=i+"|"+pid;let c=RC[key];
+  if(!c){
+    if(o.m.t!=="join"){r.pub(base+"/dn/"+pid,{t:"rejoin"});return}
+    c=RC[key]={open:true,_h:{},_last:0,
+      on(e,f){this._h[e]=f},_emit(e,x){const f=this._h[e];if(f)f(x)},
+      send(m){if(this.open)r.pub(base+"/dn/"+pid,m)},
+      close(){if(!this.open)return;this.open=false;if(RC[key]===this)delete RC[key];this._emit("close")}};
+    wireConn(c);
+  }
+  c._last=Date.now();
+  if(o.m.t==="ping"){c.send({t:"pong"});return}
+  c._emit("data",o.m);
+}
+setInterval(()=>{const now=Date.now();Object.values(RC).forEach(c=>{if(now-c._last>20000)c.close()})},5000);
+function setNet(t,ok){const n=$("#net");n.textContent=t;n.className="pill "+(ok?"on":"off")}
+function onlineCount(){const n=Object.keys(conns).length;$("#online").textContent=n;return n}
+function wireConn(c){
+  let pid=null;
+  c.on("data",m=>{
+    if(!m||typeof m!=="object") return;
+    if(m.t==="join"){
+      pid=String(m.pid||"").slice(0,40); const nick=String(m.nick||"").trim().replace(/\s+/g," ").slice(0,40);
+      if(!pid||nick.length<2){c.send({t:"err",msg:"Thiếu họ tên."});return}
+      if(!H||!live||live.phase==="final"){c.send({t:"err",msg:"Phòng thi đã kết thúc hoặc chưa mở."});return}
+      if(!players[pid]) players[pid]={pid,nick,ans:{}};
+      const old=conns[pid]; if(old&&old!==c){try{old.close()}catch(e){}}
+      conns[pid]=c; save(); onlineCount();
+      sendState(pid);
+      if(live.phase==="lobby") render(); else updateAnswered();
+      return;
+    }
+    if(m.t==="ans"&&pid&&players[pid]){
+      if(!live||live.phase!=="question"||m.seq!==live.seq) return;
+      const had=players[pid].ans[live.qi]; if(had!=null){c.send({t:"ack",seq:live.seq,k:had.k});return}
+      const k=Number(m.k); if(!(k>=0&&k<=3)) return;
+      const q=H.qs[live.qi]; const t=Date.now()-H.qStart;
+      if(t>q.T*1000+1500) return;
+      const tt=Math.min(t,q.T*1000);
+      players[pid].ans[live.qi]={k,t:tt,pts:k===q.correct?scoreFor(tt,q.T):0};
+      c.send({t:"ack",seq:live.seq,k});
+      save(); updateAnswered();
+      const n=Object.keys(players).length,a=Object.values(players).filter(p=>p.ans[live.qi]!=null).length;
+      if(n>0&&a>=n) endQuestion();
+    }
+  });
+  c.on("close",()=>{if(pid&&conns[pid]===c){delete conns[pid]}onlineCount();if(live&&live.phase==="lobby")render()});
+  c.on("error",()=>{});
+}
+function sendState(pid,rs){
+  const c=conns[pid]; if(!c||!c.open) return;
+  rs=rs||rows(); const i=rs.findIndex(r=>r.pid===pid); const r=rs[i];
+  let streak=0;if(r&&live){const upto=live.phase==="question"?live.qi-1:live.qi;for(let k=upto;k>=0;k--){const a=r.ans[k];if(a&&a.pts>0)streak++;else break}}
+  const me=r?{nick:r.nick,score:r.score,correct:r.correct,rank:i+1,n:rs.length,streak,last:live&&live.qi>=0?(r.ans[live.qi]||null):null}:null;
+  const top=(live&&(live.phase==="board"||live.phase==="final"))?rs.slice(0,5).map(x=>({nick:x.nick,score:x.score})):null;
+  try{c.send({t:"state",live,me,top})}catch(e){}
+}
+function broadcast(){const rs=rows();Object.keys(conns).forEach(pid=>sendState(pid,rs))}
+function setLive(o){live=o;save();broadcast();render()}
+
+/* ---------- điều khiển trò chơi ---------- */
+function createGame(n,timeMode){
+  n=Math.min(n,BANK.length);
+  const mix=MIX[n]||[Math.round(n*.3),Math.round(n*.4),n-Math.round(n*.3)-Math.round(n*.4)];const tiers=[[1,4],[5,8],[9,12]];let pick=[];
+  tiers.forEach(([a,b],i)=>{pick=pick.concat(shuffle(BANK.filter(q=>q.lv>=a&&q.lv<=b)).slice(0,mix[i]))});
+  if(pick.length<n){const rest=shuffle(BANK.filter(q=>!pick.includes(q)));pick=pick.concat(rest.slice(0,n-pick.length))}
+  pick.sort((x,y)=>x.lv-y.lv);
+  const qs=pick.map(q=>{
+    const T=timeMode==="tier"?TIER_T(q.lv):Number(timeMode);
+    if(q.tf) return{lv:q.lv,tf:true,text:q.q,opts:["Đúng","Sai"],correct:q.a[0]==="Đúng"?0:1,e:q.e,T};
+    const ord=shuffle([0,1,2,3]);return{lv:q.lv,text:q.q,opts:ord.map(i=>q.a[i]),correct:ord.indexOf(0),e:q.e,T}});
+  const pin=String(Math.floor(100000+Math.random()*900000));
+  Object.values(conns).forEach(c=>{try{c.close()}catch(e){}});conns={};players={};
+  H={pin,qs};live={phase:"lobby",seq:0,qi:-1,total:qs.length};save();
+  openRoom(pin);render();
+}
+function startQuestion(qi){
+  const q=H.qs[qi];H.qStart=Date.now();
+  setLive({phase:"question",seq:(live.seq||0)+1,qi,total:H.qs.length,q:{text:q.text,opts:q.opts,tier:TIER(q.lv),tf:!!q.tf},T:q.T});
+  startTick();
+}
+function startTick(){
+  clearInterval(tick);
+  tick=setInterval(()=>{
+    if(!live||live.phase!=="question"){clearInterval(tick);return}
+    const q=H.qs[live.qi];const left=Math.max(0,q.T-(Date.now()-H.qStart)/1000);
+    if(window.QuizMusic) QuizMusic.tension(left,q.T);
+    const c=$("#clock");if(c){c.style.setProperty("--p",left/q.T);c.classList.toggle("warn",left<=5);c.querySelector(".in").textContent=Math.ceil(left)}
+    if(left<=0) endQuestion();
+  },250);
+}
+function endQuestion(){
+  if(!live||live.phase!=="question") return;
+  clearInterval(tick);
+  const q=H.qs[live.qi];const dist=[0,0,0,0];let ok=0;
+  Object.values(players).forEach(p=>{const a=p.ans[live.qi];if(a){dist[a.k]++;if(a.pts>0)ok++}});
+  setLive({...live,phase:"reveal",correct:q.correct,e:q.e,dist,correctN:ok,answered:dist.reduce((s,x)=>s+x,0),players:Object.keys(players).length});
+}
+function nextStep(){if(live.qi+1<H.qs.length)startQuestion(live.qi+1);else setLive({phase:"final",seq:live.seq,qi:live.qi,total:H.qs.length})}
+function updateAnswered(){
+  const el=$("#answered");if(!el||!live)return;
+  const n=Object.keys(players).length,a=Object.values(players).filter(p=>p.ans[live.qi]!=null).length;
+  el.innerHTML=`Đã trả lời: <b class="num">${a}/${n}</b>`;
+}
+
+/* ---------- giao diện ---------- */
+function studentLink(){
+  const saved=ls.get("tn-host-link"); if(saved) return saved;
+  if(location.protocol.startsWith("http")) return new URL("./",location.href).href;
+  return "";
+}
+function render(){
+  if(window.QuizMusic&&live) QuizMusic.sync(live);
+  if(!H||!live) return renderSetup();
+  ({lobby:renderLobby,question:renderQuestion,reveal:renderReveal,board:renderBoard,final:renderFinal}[live.phase]||renderSetup)();
+}
+function strip(){
+  return `<div class="row"><span class="pill">PIN <b class="num">${esc(H.pin)}</b></span><span class="pill">Người chơi <b class="num">${Object.keys(players).length}</b></span><span class="pill">Câu <b class="num">${Math.max(0,live.qi+1)}/${H.qs.length}</b></span><span style="flex:1"></span><button class="btn" id="toSetup" type="button">Cài đặt</button></div>`;
+}
+function wireStrip(){const b=$("#toSetup");if(b)b.onclick=renderSetup}
+function renderSetup(){
+  const open=H&&live&&live.phase!=="final";
+  app.innerHTML=`<div class="card">
+    <h2>Tạo phòng thi</h2>
+    <p class="muted">Bộ 1 gồm câu hỏi tổng hợp soạn từ đề cương (Bài 1–7 và ba đề minh hoạ). Ngân hàng có ${BANK.length} câu, chia ba mức: nhận biết, thông hiểu, vận dụng. Câu hỏi được chọn ngẫu nhiên theo tỉ lệ và xếp từ dễ đến khó.</p>
+    <div class="grid3">
+      <div class="field"><label for="setN">Số câu hỏi</label><select id="setN"><option value="10">10 câu (khoảng 8 phút)</option><option value="15">15 câu (khoảng 12 phút)</option><option value="20" selected>20 câu (khoảng 16 phút)</option><option value="30">30 câu (khoảng 25 phút)</option></select></div>
+      <div class="field"><label for="setT">Thời gian mỗi câu</label><select id="setT"><option value="tier" selected>Theo mức độ: 20 / 30 / 60 giây</option><option value="20">20 giây mọi câu</option><option value="30">30 giây mọi câu</option><option value="45">45 giây mọi câu</option></select></div>
+      <div class="field"><label>Cách tính điểm</label><div class="muted" style="font-size:14px">Đúng mới có điểm: 500–1000 điểm, trả lời càng nhanh càng cao. Sai hoặc hết giờ: 0 điểm.</div></div>
+    </div>
+    <div class="field"><label for="setLink">Đường link cho học sinh (trang index.html của trang web)</label><input id="setLink" placeholder="https://ten-trang-cua-thay-co.netlify.app/" value="${esc(studentLink())}"></div>
+    <div class="row">${open?`<button class="btn" id="resume" type="button">Quay lại phòng đang mở (PIN ${esc(H.pin)})</button>`:""}<button class="btn primary big" id="create" type="button">Tạo phòng mới</button></div>
+  </div>`;
+  $("#setLink").onchange=e=>{const v=e.target.value.trim();if(v)ls.set("tn-host-link",v);else ls.del("tn-host-link")};
+  $("#create").onclick=()=>{const v=$("#setLink").value.trim();if(v)ls.set("tn-host-link",v);createGame(Number($("#setN").value),$("#setT").value)};
+  if(open)$("#resume").onclick=()=>{if(!peer&&!relays.length)openRoom(H.pin);render()};
+}
+function renderLobby(){
+  const ps=Object.values(players);const link=studentLink();
+  app.innerHTML=`${strip()}<div class="lobby">
+    <div class="card"><div class="eyebrow">Mã PIN vào phòng</div><div class="pin num">${esc(H.pin)}</div>
+      ${link?`<div class="joinbox"><div class="qr" id="qr" aria-label="Mã QR mở trang học sinh"></div><div><div class="eyebrow">Học sinh mở trang</div><div class="link">${esc(link.replace(/^https?:\/\//,""))}</div><p class="muted" style="margin:6px 0 0">Quét mã QR hoặc gõ địa chỉ trên, rồi nhập mã PIN và họ tên.</p></div></div>`:`<div class="info">Chưa có đường link cho học sinh. Bấm Cài đặt để dán link trang web của thầy/cô.</div>`}
+      ${roomReady()?"":`<div class="err">Phòng chưa mở xong. Kiểm tra kết nối Internet của máy này.</div>`}
+    </div>
+    <div class="card"><div class="bar"><div><div class="eyebrow">Đã vào phòng</div><div class="count num">${ps.length}</div></div><button class="btn primary big" id="go" type="button" ${ps.length?"":"disabled"}>Bắt đầu</button></div>
+      <div class="chips">${ps.map(p=>`<span class="chip ${conns[p.pid]?"":"away"}">${esc(p.nick)}</span>`).join("")||`<span class="muted">Chưa có học sinh nào. Tên các em sẽ hiện ở đây ngay khi vào phòng.</span>`}</div>
+    </div></div>`;
+  wireStrip();$("#go").onclick=()=>startQuestion(0);
+  if(link) loadQR().then(ok=>{const box=$("#qr");if(!box)return;if(!ok){box.textContent="(không tải được mã QR)";return}const q=qrcode(0,"M");q.addData(link);q.make();box.innerHTML=q.createSvgTag({cellSize:4,margin:0,scalable:true})});
+}
+function tilesHTML(q,o){
+  return `<div class="tiles">${q.opts.map((t,i)=>`<div class="tile ${q.tf?(i===0?"c3":"c0"):"c"+i} ${o.dim&&i!==o.correct?"dim":""} ${o.correct===i?"correct":""}"><span class="fill" style="width:${o.dist?Math.round(100*o.dist[i]/Math.max(1,o.total)):0}%"></span><span class="k">${q.tf?(i===0?"Đ":"S"):KEYS[i]}</span><span class="t">${esc(t)}</span>${o.dist?`<span class="cnt num">${o.dist[i]}</span>`:""}</div>`).join("")}</div>`;
+}
+function renderQuestion(){
+  const q=H.qs[live.qi];const left=Math.max(0,q.T-(Date.now()-H.qStart)/1000);
+  app.innerHTML=`${strip()}<div class="card">
+    <div class="stagehead"><div class="grow"><div class="eyebrow">Câu ${live.qi+1}/${H.qs.length} · ${TIER(q.lv)} · ${q.T} giây</div><div class="qtext">${esc(q.text)}</div></div>
+    <div class="clock" id="clock" style="--p:${left/q.T}"><div class="in num">${Math.ceil(left)}</div></div></div>
+    ${tilesHTML(q,{})}
+    <div class="bar"><span class="pill" id="answered"></span><button class="btn" id="end" type="button">Kết thúc câu này</button></div></div>`;
+  wireStrip();updateAnswered();$("#end").onclick=endQuestion;
+  if(!tick) startTick();
+}
+function renderReveal(){
+  const q=H.qs[live.qi];
+  app.innerHTML=`${strip()}<div class="card">
+    <div class="eyebrow">Câu ${live.qi+1}/${H.qs.length} · ${TIER(q.lv)}</div><div class="qtext">${esc(q.text)}</div>
+    ${tilesHTML(q,{correct:q.correct,dim:true,dist:live.dist,total:live.answered})}
+    <div class="stats"><span class="pill">Trả lời đúng <b class="num">${live.correctN}/${live.players}</b></span><span class="pill">Không trả lời <b class="num">${live.players-live.answered}</b></span></div>
+    <div class="exp"><b>${q.tf?"Đáp án: "+q.opts[q.correct]+".":"Đáp án "+KEYS[q.correct]+"."}</b> ${esc(q.e)}</div>
+    <div class="row" style="justify-content:flex-end"><button class="btn primary big" id="toBoard" type="button">Xem bảng xếp hạng</button></div></div>`;
+  wireStrip();$("#toBoard").onclick=()=>setLive({...live,phase:"board"});
+}
+function lbHTML(rs,qi,limit){
+  return `<div class="lb">${rs.slice(0,limit).map((r,i)=>{const a=qi>=0?r.ans[qi]:null;return `<div class="r"><span class="pos num">${i+1}</span><span class="nm">${esc(r.nick)}</span><span class="gain num">${a&&a.pts?"+"+a.pts:""}</span><span class="sc num">${r.score.toLocaleString("vi-VN")}</span></div>`}).join("")||`<p class="muted">Chưa có người chơi.</p>`}</div>`;
+}
+function renderBoard(){
+  const last=live.qi+1>=H.qs.length;
+  app.innerHTML=`${strip()}<div class="card"><div class="bar"><h2>Bảng xếp hạng sau câu ${live.qi+1}</h2><button class="btn primary big" id="next" type="button">${last?"Kết thúc, xem kết quả":"Câu tiếp theo"}</button></div>${lbHTML(rows(),live.qi,10)}</div>`;
+  wireStrip();$("#next").onclick=nextStep;
+}
+function renderFinal(){
+  const rs=rows();const top=[rs[1],rs[0],rs[2]];
+  app.innerHTML=`${strip()}<div class="card"><h2>Kết quả chung cuộc</h2>
+    <div class="podium">${top.map((r,i)=>r?`<div class="pod ${["p2","p1","p3"][i]}"><span class="pr">Hạng ${[2,1,3][i]}</span><span class="pn">${esc(r.nick)}</span><span class="pp num">${r.score.toLocaleString("vi-VN")}</span><span class="muted num" style="font-size:13px">${r.correct}/${H.qs.length} câu đúng</span></div>`:`<div></div>`).join("")}</div>
+    <div class="tablewrap"><table><thead><tr><th>Hạng</th><th>Họ tên</th><th class="r">Điểm</th><th class="r">Số câu đúng</th><th class="r">Tổng thời gian (câu đúng)</th></tr></thead><tbody>
+    ${rs.map((r,i)=>`<tr><td class="num">${i+1}</td><td>${esc(r.nick)}</td><td class="r num">${r.score.toLocaleString("vi-VN")}</td><td class="r num">${r.correct}/${H.qs.length}</td><td class="r num">${fmtSec(r.time)}</td></tr>`).join("")}</tbody></table></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" id="csv" type="button">Tải bảng kết quả (Excel/CSV)</button><button class="btn primary" id="again" type="button">Tạo phòng mới</button></div></div>`;
+  wireStrip();$("#again").onclick=renderSetup;
+  $("#csv").onclick=()=>{
+    const head=["Hạng","Họ tên","Điểm","Số câu đúng","Tổng thời gian câu đúng (giây)",...H.qs.map((_,i)=>"Câu "+(i+1))];
+    const lines=[head].concat(rs.map((r,i)=>[i+1,r.nick,r.score,r.correct,(r.time/1000).toFixed(1),...H.qs.map((q,qi)=>{const a=r.ans[qi];return a?((q.tf?q.opts[a.k]:KEYS[a.k])+(a.pts?" ("+a.pts+")":" (sai)")):"-"})]));
+    const csv="﻿"+lines.map(l=>l.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    a.download="ket-qua-thi-nhanh-vat-li-nhiet.csv";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+  };
+}
+
+/* ---------- khởi động ---------- */
+if(window.QuizMusic) QuizMusic.mountPanel(document.querySelector("header .row"));
+(async()=>{
+  const ok=await Promise.race([loadPeer(),new Promise(r=>setTimeout(()=>r(!!window.Peer),6000))]);
+  if(!ok&&!window.QuizRelay){setNet("Không tải được thư viện kết nối",false);app.innerHTML=`<div class="card"><h2>Không tải được thư viện kết nối</h2><p>Máy này chưa truy cập được unpkg.com hoặc cdn.jsdelivr.net. Hãy kiểm tra Internet (hoặc tường lửa của trường) rồi tải lại trang.</p></div>`;return}
+  restore();
+  if(H&&live&&live.phase!=="final"){openRoom(H.pin);if(live.phase==="question"&&H.qStart)startTick()}
+  else updateNet();
+  render();
+})();
+window.addEventListener("beforeunload",e=>{if(live&&live.phase!=="final"&&live.phase!=="lobby"){e.preventDefault();e.returnValue=""}});
+</script>
+</body>
+</html>

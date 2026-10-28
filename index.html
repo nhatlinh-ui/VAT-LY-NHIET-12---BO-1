@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thi nhanh Vật lí nhiệt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="shared.css">
+<script src="relay.js"></script>
+</head>
+<body>
+<div class="wrap phone">
+  <header class="bar">
+    <div class="brand"><h1>Thi nhanh Vật lí nhiệt</h1><span>Bộ 1 · Tổng hợp</span></div>
+    <div class="row"><button class="btn" id="sfxBtn" type="button" style="padding:4px 12px;font-size:13px">Âm thanh: bật</button><span class="pill off" id="net">Chưa vào phòng</span></div>
+  </header>
+  <main id="app"><div class="card"><h2>Đang tải…</h2></div></main>
+</div>
+
+<script>
+const PREFIX="pbc-vatli12-nhiet-";
+const KEYS=["A","B","C","D"];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const fmtSec=ms=>(ms/1000).toLocaleString("vi-VN",{maximumFractionDigits:1})+" s";
+const rid=n=>Array.from(crypto.getRandomValues(new Uint8Array(n)),b=>"abcdefghjkmnpqrstuvwxyz23456789"[b%31]).join("");
+const app=$("#app");
+const INAPP=/Zalo|FBAN|FBAV|FB_IAB|Instagram|Messenger|Line\//i.test(navigator.userAgent)?" Em đang mở trong Zalo/Facebook: bấm nút ⋯ ở góc trên và chọn \"Mở bằng trình duyệt\" (Chrome/Safari) rồi thử lại.":"";
+
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+async function loadPeer(){
+  if(window.Peer) return true;
+  for(const u of ["https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js","https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"]){
+    try{await loadScript(u);if(window.Peer)return true}catch(e){}
+  }
+  return false;
+}
+
+let me={pid:ls.get("tn-pid")||rid(12),nick:ls.get("tn-nick")||"",pin:ls.get("tn-pin")||""};
+ls.set("tn-pid",me.pid);
+let relayPing=null,lastHeard=0;
+let peer=null,conn=null,joined=false,connecting=false,err="",wantRoom=false,retryT=null;
+let live=null,mine=null,topList=null,picked=null,pickedSeq=-1,localStart=0,lastSeq=-1,sTick=null,acked=false;
+
+/* hiệu ứng âm thanh ngắn trên điện thoại (không phát nhạc nền để lớp không bị ồn) */
+let AC=null,sfxOn=ls.get("tn-sfx")!=="off";
+function beep(seq){
+  if(!sfxOn) return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();
+    const t0=AC.currentTime+.02;
+    seq.forEach(([f,d,at,type,v])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type||"triangle";o.frequency.value=f;
+      g.gain.setValueAtTime(v||.12,t0+at);g.gain.exponentialRampToValueAtTime(.0001,t0+at+d);o.connect(g).connect(AC.destination);o.start(t0+at);o.stop(t0+at+d+.02)})}catch(e){}
+}
+const SFX={
+  newq:()=>beep([[660,.12,0],[990,.18,.1]]),
+  tap:()=>beep([[520,.08,0,"square",.06]]),
+  right:()=>beep([[523,.16,0],[659,.16,.1],[784,.16,.2],[1046,.3,.3]]),
+  wrong:()=>beep([[220,.35,0,"sawtooth",.08],[180,.45,.15,"sawtooth",.07]]),
+  win:()=>beep([[523,.2,0],[659,.2,.15],[784,.2,.3],[1046,.5,.45]])
+};
+let lastFx="";
+function setNet(t,ok){const n=$("#net");n.textContent=t;n.className="pill "+(ok?"on":"off")}
+
+function ensurePeer(){
+  return new Promise(res=>{
+    if(peer&&!peer.destroyed&&peer.open) return res(true);
+    if(peer){try{peer.destroy()}catch(e){}}
+    peer=new Peer({debug:0});
+    let done=false;
+    peer.on("open",()=>{if(!done){done=true;res(true)}});
+    peer.on("error",e=>{
+      if(e.type==="peer-unavailable"){
+        connecting=false;
+        if(joined){setNet("Mất kết nối, đang nối lại…",false);scheduleRetry()}
+        else{err="Không tìm thấy phòng với mã PIN này. Kiểm tra lại mã trên màn chiếu (phòng có thể chưa mở)."+INAPP;wantRoom=false;render()}
+      }else if(!done){done=true;res(false)}
+      else{setNet("Lỗi mạng, đang thử lại…",false);scheduleRetry()}
+    });
+    peer.on("disconnected",()=>{try{peer.reconnect()}catch(e){}});
+    setTimeout(()=>{if(!done){done=true;res(false)}},12000);
+  });
+}
+function scheduleRetry(){clearTimeout(retryT);if(!wantRoom)return;retryT=setTimeout(connect,3000)}
+/* Kênh 1: qua máy chủ trung gian (chạy được trên 4G và hầu hết Wi-Fi) */
+let relayReach=false;
+function relayJoin(){
+  const Q=window.QuizRelay,base=Q.topic(PREFIX,me.pin),dn=base+"/dn/"+me.pid,up=base+"/up";
+  relayReach=false;
+  return new Promise(resolve=>{
+    let left=Q.BROKERS.length,done=false;const rs=[];
+    const finish=v=>{if(done)return;done=true;rs.forEach(x=>{if(!v||x!==v.r)x.close()});resolve(v)};
+    const settle=()=>{left--;if(left<=0)finish(null)};
+    Q.BROKERS.forEach(u=>{
+      const r=new Q.Relay(u);rs.push(r);
+      r.connect(7000).then(()=>{
+        if(done){r.close();return}
+        relayReach=true;let fin=false;
+        r.onmsg=(t,o)=>{if(fin)return;fin=true;finish({r,o})};
+        r.onclose=()=>{if(!fin){fin=true;settle()}};
+        r.sub(dn);r.pub(up,{from:me.pid,m:{t:"join",pid:me.pid,nick:me.nick}});
+        setTimeout(()=>{if(!fin){fin=true;settle()}},5000);
+      },()=>settle());
+    });
+  }).then(v=>{
+    if(!v) return null;
+    if(!wantRoom){v.r.close();return "stop"}
+    const L=useRelay(v.r,up,v.o);
+    if(conn===L) L.send({t:"join",pid:me.pid,nick:me.nick}); // chốt kênh này với máy giáo viên
+    return L;
+  });
+}
+function useRelay(r,up,first){
+  const L={relay:true,open:true,send(m){r.pub(up,{from:me.pid,m})},close(){L.open=false;clearInterval(relayPing);r.close()}};
+  conn=L;lastHeard=Date.now();setNet("Đã kết nối",true);
+  const lost=()=>{if(conn===L){conn=null;clearInterval(relayPing);setNet("Mất kết nối, đang nối lại…",false);render();scheduleRetry()}};
+  r.onmsg=(t,o)=>{lastHeard=Date.now();onMsg(o)};
+  r.onclose=lost;
+  clearInterval(relayPing);
+  relayPing=setInterval(()=>{
+    if(conn!==L){clearInterval(relayPing);return}
+    if(Date.now()-lastHeard>16000){L.close();lost();return}
+    L.send({t:"ping"});
+  },5000);
+  onMsg(first);
+  return L;
+}
+async function connect(){
+  if(connecting) return; connecting=true;
+  if(conn){try{conn.close()}catch(e){}conn=null}
+  if(window.QuizRelay){
+    setNet("Đang kết nối…",false);
+    const L=await relayJoin();
+    if(L||!wantRoom){connecting=false;return}
+  }
+  if(!window.Peer){connecting=false;if(joined){setNet("Lỗi mạng, đang thử lại…",false);scheduleRetry()}else{err=(relayReach?"Không tìm thấy phòng với mã PIN này. Kiểm tra lại mã trên màn chiếu (phòng có thể chưa mở).":"Không kết nối được máy chủ. Kiểm tra Wi-Fi/4G rồi thử lại.")+INAPP;wantRoom=false;render()}return}
+  const ok=await ensurePeer();
+  if(!ok){connecting=false;if(joined){setNet("Lỗi mạng, đang thử lại…",false);scheduleRetry()}else{err="Không kết nối được máy chủ. Kiểm tra Wi-Fi/4G rồi thử lại."+INAPP;wantRoom=false;render()}return}
+  const c=peer.connect(PREFIX+me.pin,{reliable:true});
+  let opened=false;
+  c.on("open",()=>{opened=true;connecting=false;conn=c;c.send({t:"join",pid:me.pid,nick:me.nick});setNet("Đã kết nối",true)});
+  c.on("data",onMsg);
+  c.on("close",()=>{if(conn===c){conn=null;setNet("Mất kết nối, đang nối lại…",false);scheduleRetry()}});
+  c.on("error",()=>{});
+  setTimeout(()=>{if(!opened){connecting=false;try{c.close()}catch(e){}if(joined)scheduleRetry();else if(wantRoom){err="Không vào được phòng. Kiểm tra mã PIN và mạng rồi thử lại."+INAPP;wantRoom=false;render()}}},15000);
+}
+function onMsg(m){
+  if(!m||typeof m!=="object") return;
+  if(m.t==="err"){err=m.msg||"Không vào được phòng.";joined=false;wantRoom=false;try{conn&&conn.close()}catch(e){}render();return}
+  if(m.t==="pong") return;
+  if(m.t==="rejoin"){if(conn)try{conn.send({t:"join",pid:me.pid,nick:me.nick})}catch(e){}return}
+  if(m.t==="ack"){if(live&&m.seq===live.seq){picked=m.k;pickedSeq=m.seq;acked=true;render()}return}
+  if(m.t==="state"){
+    joined=true;err="";
+    const prev=live;live=m.live;mine=m.me;topList=m.top;
+    const fxKey=live?live.phase+":"+live.seq:"";
+    if(fxKey!==lastFx){lastFx=fxKey;
+      if(live.phase==="question") SFX.newq();
+      else if(live.phase==="reveal"){const a=m.me&&m.me.last;(a&&a.pts>0?SFX.right:SFX.wrong)()}
+      else if(live.phase==="final") SFX.win();
+    }
+    if(live&&live.phase==="question"&&live.seq!==lastSeq){lastSeq=live.seq;localStart=Date.now();if(pickedSeq!==live.seq){picked=null;acked=false}startTick()}
+    if(live&&live.phase==="question"&&mine&&mine.last&&pickedSeq!==live.seq){picked=mine.last.k;pickedSeq=live.seq;acked=true}
+    render();
+  }
+}
+function startTick(){
+  clearInterval(sTick);
+  sTick=setInterval(()=>{
+    if(!live||live.phase!=="question"){clearInterval(sTick);return}
+    const left=Math.max(0,live.T-(Date.now()-localStart)/1000);
+    const b=$("#tl i");if(b)b.style.width=(100*left/live.T)+"%";
+    const n=$("#sLeft");if(n)n.textContent=Math.ceil(left);
+    if(left<=0){clearInterval(sTick);render()}
+  },200);
+}
+function join(){
+  const pin=$("#jPin").value.replace(/\D/g,"").slice(0,6),nick=$("#jNick").value.trim().replace(/\s+/g," ").slice(0,40);
+  if(pin.length!==6){err="Mã PIN gồm 6 chữ số.";return render()}
+  if(nick.length<2){err="Hãy nhập họ tên (và lớp) để thầy/cô nhận ra em.";return render()}
+  me.pin=pin;me.nick=nick;ls.set("tn-pin",pin);ls.set("tn-nick",nick);
+  err="";wantRoom=true;joined=false;render();connect();
+}
+function choose(k){
+  if(!live||live.phase!=="question"||picked!==null||!conn) return;
+  if((Date.now()-localStart)/1000>live.T) return;
+  picked=k;pickedSeq=live.seq;acked=false;SFX.tap();
+  try{conn.send({t:"ans",seq:live.seq,k})}catch(e){}
+  const sq=live.seq;[2500,5000].forEach(ms=>setTimeout(()=>{if(live&&live.seq===sq&&pickedSeq===sq&&!acked&&conn){try{conn.send({t:"ans",seq:sq,k})}catch(e){}}},ms));
+  render();
+}
+function lbHTML(rs){return `<div class="lb short">${(rs||[]).map((r,i)=>`<div class="r"><span class="pos num">${i+1}</span><span class="nm">${esc(r.nick)}</span><span class="sc num">${r.score.toLocaleString("vi-VN")}</span></div>`).join("")}</div>`}
+
+function render(){
+  if(!joined){
+    if(wantRoom){app.innerHTML=`<div class="card"><h2>Đang vào phòng…</h2><p class="muted">Đang kết nối tới máy của thầy/cô với mã PIN ${esc(me.pin)}.</p></div>`;return}
+    app.innerHTML=`<div class="card"><h2>Vào phòng thi</h2>
+      ${err?`<div class="err">${esc(err)}</div>`:""}
+      <div class="field"><label for="jPin">Mã PIN</label><input id="jPin" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="6 chữ số trên màn chiếu" value="${esc(me.pin)}"></div>
+      <div class="field"><label for="jNick">Họ tên, lớp</label><input id="jNick" autocomplete="name" maxlength="40" placeholder="Ví dụ: Nguyễn Văn An 12A1" value="${esc(me.nick)}"></div>
+      <button class="btn primary big" id="jGo" type="button">Vào phòng</button>
+      <p class="muted" style="font-size:14px;margin:0">Đáp án đúng mới có điểm. Trả lời càng nhanh, điểm càng cao (500–1000 điểm mỗi câu). Mỗi câu chỉ được chọn một lần.</p></div>`;
+    $("#jGo").onclick=join;$("#jNick").onkeydown=e=>{if(e.key==="Enter")join()};
+    return;
+  }
+  const meBar=mine?`<div class="card me"><div><div class="eyebrow">Xin chào</div><div style="font-weight:700;font-size:18px">${esc(mine.nick)}</div></div><div style="text-align:right"><div class="eyebrow">Điểm · hạng ${mine.rank}/${mine.n}</div><div class="sc num">${mine.score.toLocaleString("vi-VN")}</div>${mine.streak>=2?`<div class="streak">Chuỗi đúng: ${mine.streak} câu</div>`:""}</div></div>`:"";
+  const ph=live?live.phase:"";
+  if(ph==="lobby"){app.innerHTML=meBar+`<div class="card"><h2>Đã vào phòng!</h2><p class="muted">Nhìn lên màn chiếu và chờ thầy/cô bấm Bắt đầu. Có ${live.total} câu hỏi.</p></div>`;return}
+  if(ph==="question"){
+    const left=Math.max(0,live.T-(Date.now()-localStart)/1000);const over=left<=0;
+    app.innerHTML=meBar+`<div class="card">
+      <div class="bar"><span class="eyebrow">Câu ${live.qi+1}/${live.total} · ${esc(live.q.tier)}</span><span class="pill"><b class="num" id="sLeft">${Math.ceil(left)}</b>&nbsp;giây</span></div>
+      <div class="timeline" id="tl"><i style="width:${100*left/live.T}%"></i></div>
+      <div class="qtext" style="font-size:20px">${esc(live.q.text)}</div>
+      <div class="pads">${live.q.opts.map((o,i)=>`<button class="tile pad ${live.q.tf?(i===0?"c3":"c0"):"c"+i} ${picked===i?"picked":""} ${picked!==null&&picked!==i?"dim":""}" data-k="${i}" type="button" ${picked!==null||over||!conn?"disabled":""}><span class="k">${live.q.tf?(i===0?"Đ":"S"):KEYS[i]}</span><span class="t">${esc(o)}</span></button>`).join("")}</div>
+      ${picked!==null?`<div class="info">${acked?"Đã ghi nhận":"Đã gửi"} đáp án <b>${live.q.tf?live.q.opts[picked]:KEYS[picked]}</b>. Chờ thầy/cô công bố đáp án.</div>`:over?`<div class="err">Hết giờ.</div>`:!conn?`<div class="err">Đang nối lại mạng…</div>`:""}
+    </div>`;
+    app.querySelectorAll(".pad").forEach(b=>b.onclick=()=>choose(Number(b.dataset.k)));
+    return;
+  }
+  if(ph==="reveal"||ph==="board"){
+    const a=mine&&mine.last;const ok=a&&a.pts>0;
+    const msg=!a?`<div class="big-msg bad">Chưa trả lời kịp</div>`:ok?`<div class="big-msg ok">Chính xác! +${a.pts}</div><p class="muted" style="margin:0">Thời gian trả lời: ${fmtSec(a.t)}</p>`:`<div class="big-msg bad">Chưa đúng</div><p class="muted" style="margin:0">Em chọn ${live.q.tf?live.q.opts[a.k]:KEYS[a.k]}.</p>`;
+    app.innerHTML=meBar+`<div class="card">${msg}
+      <div class="exp"><b>${live.q.tf?"Đáp án: "+esc(live.q.opts[live.correct]):"Đáp án "+KEYS[live.correct]+": "+esc(live.q.opts[live.correct])}</b><br>${esc(live.e)}</div>
+      ${ph==="board"&&topList?`<div class="eyebrow">Top 5</div>${lbHTML(topList)}`:""}
+      <p class="muted" style="margin:0">Nhìn lên màn chiếu để chờ câu tiếp theo.</p></div>`;
+    return;
+  }
+  if(ph==="final"){
+    app.innerHTML=meBar+`<div class="card"><h2>Kết thúc!</h2>${mine?`<div class="big-msg ${mine.rank<=3?"ok":""}">Hạng ${mine.rank}/${mine.n}</div><p style="margin:0">Em trả lời đúng <b>${mine.correct}/${live.total}</b> câu, tổng ${mine.score.toLocaleString("vi-VN")} điểm.</p>`:""}${topList?`<div class="eyebrow">Top 5</div>${lbHTML(topList)}`:""}</div>`;
+    wantRoom=false;
+    return;
+  }
+  app.innerHTML=meBar+`<div class="card"><p class="muted">Đang chờ thầy/cô…</p></div>`;
+}
+
+$("#sfxBtn").textContent="Âm thanh: "+(sfxOn?"bật":"tắt");
+$("#sfxBtn").onclick=()=>{sfxOn=!sfxOn;ls.set("tn-sfx",sfxOn?"on":"off");$("#sfxBtn").textContent="Âm thanh: "+(sfxOn?"bật":"tắt");if(sfxOn)SFX.tap()};
+(async()=>{
+  if(!window.QuizRelay&&!(await loadPeer())){app.innerHTML=`<div class="card"><h2>Không tải được trang thi</h2><p>Điện thoại chưa tải đủ trang. Kiểm tra Wi-Fi/4G rồi tải lại trang.</p></div>`;return}
+  render();loadPeer(); // kênh trực tiếp (dự phòng) tải ngầm, không bắt học sinh chờ
+})();
+</script>
+</body>
+</html>
